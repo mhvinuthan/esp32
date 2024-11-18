@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Activity Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #4CAF50; color: white; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Live Activity Dashboard</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>User Activity</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td>{{ activity.activity }}</td>
+                <td>{{ activity.time_received }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Track user activity: clicks and page loads
+        document.addEventListener('click', function(event) {
+            sendActivityData('click', event.clientX, event.clientY);
+        });
+
+        window.addEventListener('load', function() {
+            sendActivityData('page load', window.location.href);
+        });
+
+        // Function to send activity data to Flask server
+        function sendActivityData(activityType, additionalData) {
+            const activity = {
+                activity: activityType + (additionalData ? ' at ' + additionalData : ''),
+                time: new Date().toLocaleString(),
+            };
+
+            // Send the activity data to Flask backend
+            fetch('/activity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(activity),
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Activity sent:', activity);
+                } else {
+                    console.error('Error sending activity data');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
